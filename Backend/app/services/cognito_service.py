@@ -79,26 +79,26 @@ class CognitoService:
             logging.error(f"ClientError: {e}")
             return {'error': str(e)}
 
-
-def complete_new_password(self, email, new_password, session):
-    try:
-        secret_hash = calculate_secret_hash(
-            self.client_id, self.client_secret, email)
-        response = self.client.respond_to_auth_challenge(
-            ClientId=self.client_id,
-            ChallengeName='NEW_PASSWORD_REQUIRED',
-            Session=session,
-            ChallengeResponses={
-                'USERNAME': email,
-                'NEW_PASSWORD': new_password,
-                'SECRET_HASH': secret_hash
-            }
-        )
-        logging.debug(f"Response from Cognito: {response}")
-        if 'AuthenticationResult' in response:
-            return response
-        else:
-            return {'error': 'Password update failed'}
-    except ClientError as e:
-        logging.error(f"ClientError: {e}")
-        return {'error': str(e)}
+    def complete_new_password(self, email, new_password, session):
+        try:
+            secret_hash = calculate_secret_hash(
+                self.client_id, self.client_secret, email)
+            response = self.client.respond_to_auth_challenge(
+                ClientId=self.client_id,
+                ChallengeName='NEW_PASSWORD_REQUIRED',
+                Session=session,
+                ChallengeResponses={
+                    'USERNAME': email,
+                    'NEW_PASSWORD': new_password,
+                    'SECRET_HASH': secret_hash,
+                    'userAttributes.nickname': 'nickname'  # Adicione o atributo 'nickname' aqui
+                }
+            )
+            logging.debug(f"Response from Cognito: {response}")
+            if 'AuthenticationResult' in response:
+                return response
+            else:
+                return {'error': 'Password update failed'}
+        except ClientError as e:
+            logging.error(f"ClientError: {e}")
+            return {'error': str(e)}
