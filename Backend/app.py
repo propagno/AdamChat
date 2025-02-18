@@ -5,8 +5,8 @@ from auth.auth_middleware import AuthMiddleware
 app = Flask(__name__)
 
 # Configurações do Cognito
-USER_POOL_ID = 'YOUR_USER_POOL_ID'
-CLIENT_ID = 'YOUR_CLIENT_ID'
+USER_POOL_ID = '31aba570-f011-70b3-839e-5bd20ec34534'
+CLIENT_ID = '2iatr116il9ptd81nc8fq3l11h'
 
 cognito_service = CognitoService(USER_POOL_ID, CLIENT_ID)
 
