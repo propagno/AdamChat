@@ -1,16 +1,20 @@
-import axios from 'axios';
+const API_URL = 'http://localhost:5000'; // Altere para o URL do seu backend
 
-const API_URL = 'http://localhost:5000'; // Ajuste conforme necessário
-
-const register = (email, password) => {
-  return axios.post(`${API_URL}/register`, { email, password });
-};
-
-const login = (email, password) => {
-  return axios.post(`${API_URL}/login`, { email, password });
+const login = async (email, password) => {
+  try {
+    const response = await fetch(`${API_URL}/login`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ email, password }),
+    });
+    return await response.json();
+  } catch (error) {
+    return { error: 'Failed to connect to server' };
+  }
 };
 
 export default {
-  register,
   login,
 };
