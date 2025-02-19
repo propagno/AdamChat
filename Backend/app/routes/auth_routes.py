@@ -1,62 +1,35 @@
-from flask import Blueprint, Flask, request, render_template, redirect, url_for, session
-from app.controllers.auth_controller import AuthController
+from flask import Blueprint, request, jsonify
+from app.services.cognito_service import CognitoService
 
-auth_bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
-auth_controller = AuthController()
-
-app = Flask(__name__, template_folder='templates', static_folder='static')
-app.config.from_object('app.config.Config')
+auth_bp = Blueprint("auth_bp", __name__)
+cognito_service = CognitoService()
 
 
-@app.route('/')
-def home():
-    return render_template('login.html')
-
-
-@auth_bp.route('/login', methods=['GET', 'POST'])
-def login():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        result = auth_controller.login(email, password)
-        if result.get('status') == 'success':
-            session['user_email'] = email
-            return redirect(url_for('dashboard_bp.dashboard'))
-        else:
-            return render_template('login.html', error=result.get('message'))
-    return render_template('login.html')
-
-
-@auth_bp.route('/register', methods=['GET', 'POST'])
+@auth_bp.route("/auth/register", methods=["POST"])
 def register():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        password = request.form.get('password')
-        result = auth_controller.register(email, password)
-        if result.get('status') == 'success':
-            return redirect(url_for('auth_bp.confirm'))
-        else:
-            return render_template('register.html', error=result.get('message'))
-    return render_template('register.html')
+    data = request.json
+    return jsonify(cognito_service.register_user(data["email"], data["password"]))
 
 
-@auth_bp.route('/confirm', methods=['GET', 'POST'])
+@auth_bp.route("/auth/confirm", methods=["POST"])
 def confirm():
-    if request.method == 'POST':
-        email = request.form.get('email')
-        confirmation_code = request.form.get('confirmation_code')
-        result = auth_controller.confirm(email, confirmation_code)
-        if 'error' not in result:
-            return redirect(url_for('auth_bp.login'))
-        else:
-            return render_template('confirm.html', error=result.get('error'))
-    return render_template('confirm.html')
+    data = request.json
+    return jsonify(cognito_service.confirm_user(data["email"], data["confirmation_code"]))
 
 
-@auth_bp.route('/logout')
-def logout():
-    session.clear()
-    return redirect(url_for('auth_bp.login'))
+@auth_bp.route("/auth/login", methods=["POST"])
+def login():
+    data = request.json
+    return jsonify(cognito_service.login_user(data["email"], data["password"]))
 
 
-app.register_blueprint(auth_bp)
+@auth_bp.route("/auth/forgot_password", methods=["POST"])
+def forgot_password():
+    data = request.json
+    return jsonify(cognito_service.forgot_password(data["email"]))
+
+
+@auth_bp.route("/auth/reset_password", methods=["POST"])
+def reset_password():
+    data = request.json
+    return jsonify(cognito_service.confirm_forgot_password(data["email"], data["confirmation_code"], data["new_password"]))
