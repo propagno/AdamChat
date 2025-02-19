@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Registrar - AdamChat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/register.css') }}">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Registrar</h2>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form action="{{ url_for('auth_bp.register') }}" method="POST">
+      <input type="email" name="email" placeholder="Seu email" required>
+      <input type="password" name="password" placeholder="Senha" required>
+      <button type="submit">Registrar</button>
+    </form>
+    <p>Já possui conta? <a href="{{ url_for('auth_bp.login') }}">Fazer login</a></p>
+  </div>
+</body>
+</html>

@@ -1,43 +1,62 @@
-from flask import Blueprint, Flask, request, jsonify
-# Ajuste o caminho de importação conforme necessário
+from flask import Blueprint, Flask, request, render_template, redirect, url_for, session
 from app.controllers.auth_controller import AuthController
 
-# Criação do Blueprint
-auth_bp = Blueprint('auth_bp', __name__)
+auth_bp = Blueprint('auth_bp', __name__, url_prefix='/auth')
 auth_controller = AuthController()
 
-# Criação do aplicativo Flask
-app = Flask(__name__)
-
-# Rota para a página inicial
+app = Flask(__name__, template_folder='templates', static_folder='static')
+app.config.from_object('app.config.Config')
 
 
 @app.route('/')
 def home():
-    return jsonify({'message': 'Welcome to the API'})
-
-# Rota de login
+    return render_template('login.html')
 
 
-@auth_bp.route('/auth/login', methods=['POST'])
+@auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
-    data = request.get_json()
-    result = auth_controller.login(data['email'], data['password'])
-    return jsonify(result)
-
-# Rota para completar nova senha
-
-
-@auth_bp.route('/auth/complete_new_password', methods=['POST'])
-def complete_new_password():
-    data = request.get_json()
-    result = auth_controller.complete_new_password(
-        data['email'], data['new_password'], data['session'])
-    return jsonify(result)
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        result = auth_controller.login(email, password)
+        if result.get('status') == 'success':
+            session['user_email'] = email
+            return redirect(url_for('dashboard_bp.dashboard'))
+        else:
+            return render_template('login.html', error=result.get('message'))
+    return render_template('login.html')
 
 
-# Registro do Blueprint no aplicativo Flask
+@auth_bp.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        password = request.form.get('password')
+        result = auth_controller.register(email, password)
+        if result.get('status') == 'success':
+            return redirect(url_for('auth_bp.confirm'))
+        else:
+            return render_template('register.html', error=result.get('message'))
+    return render_template('register.html')
+
+
+@auth_bp.route('/confirm', methods=['GET', 'POST'])
+def confirm():
+    if request.method == 'POST':
+        email = request.form.get('email')
+        confirmation_code = request.form.get('confirmation_code')
+        result = auth_controller.confirm(email, confirmation_code)
+        if 'error' not in result:
+            return redirect(url_for('auth_bp.login'))
+        else:
+            return render_template('confirm.html', error=result.get('error'))
+    return render_template('confirm.html')
+
+
+@auth_bp.route('/logout')
+def logout():
+    session.clear()
+    return redirect(url_for('auth_bp.login'))
+
+
 app.register_blueprint(auth_bp)
-
-if __name__ == '__main__':
-    app.run(debug=True)

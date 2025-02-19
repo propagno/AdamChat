@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Confirmação de Cadastro - AdamChat</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/confirm.css') }}">
+</head>
+<body>
+  <div class="form-container">
+    <h2>Confirme seu Cadastro</h2>
+    {% if error %}
+      <p class="error">{{ error }}</p>
+    {% endif %}
+    <form action="{{ url_for('auth_bp.confirm') }}" method="POST">
+      <input type="email" name="email" placeholder="Seu email" required>
+      <input type="text" name="confirmation_code" placeholder="Código de confirmação" required>
+      <button type="submit">Confirmar</button>
+    </form>
+    <p>Já confirmou seu cadastro? <a href="{{ url_for('auth_bp.login') }}">Fazer login</a></p>
+  </div>
+</body>
+</html>

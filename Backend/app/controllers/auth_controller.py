@@ -15,7 +15,7 @@ class AuthController:
         result = self.cognito_service.login_user(email, password)
         if 'error' in result:
             if result['error'] == 'NEW_PASSWORD_REQUIRED':
-                return {'status': 'fail', 'message': 'New password required', 'session': result['session']}
+                return {'status': 'fail', 'message': 'New password required', 'session': result.get('session')}
             return {'status': 'fail', 'message': result['error']}
         return {'status': 'success', 'message': 'Login successful', 'token': result['AuthenticationResult']['IdToken']}
 
@@ -25,3 +25,9 @@ class AuthController:
         if 'error' in result:
             return {'status': 'fail', 'message': result['error']}
         return {'status': 'success', 'message': 'Password updated successfully', 'token': result['AuthenticationResult']['IdToken']}
+
+    def confirm(self, email, confirmation_code):
+        result = self.cognito_service.confirm_user(email, confirmation_code)
+        if 'error' in result:
+            return {'error': result['error']}
+        return result

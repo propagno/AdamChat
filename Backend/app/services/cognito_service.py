@@ -8,18 +8,17 @@ from dotenv import load_dotenv
 import logging
 from datetime import datetime
 
-# Load environment variables from .env file
+# Carrega as variáveis do arquivo .env
 load_dotenv()
 
-# Configure logging
+# Configura o logging
 logging.basicConfig(level=logging.DEBUG)
 
-# CloudWatch Logs configuration
+# Configuração do CloudWatch Logs (opcional)
 cloudwatch_logs_client = boto3.client('logs')
 log_group_name = 'AdamChatAuthLogs'
 log_stream_name = 'AuthStream'
 
-# Create log group if it doesn't exist
 try:
     cloudwatch_logs_client.create_log_group(logGroupName=log_group_name)
     logging.debug(f"Log group {log_group_name} created.")
@@ -28,7 +27,6 @@ except cloudwatch_logs_client.exceptions.ResourceAlreadyExistsException:
 except ClientError as e:
     logging.error(f"Error creating log group: {e}")
 
-# Create log stream if it doesn't exist
 try:
     cloudwatch_logs_client.create_log_stream(
         logGroupName=log_group_name, logStreamName=log_stream_name)
@@ -72,9 +70,13 @@ def log_to_cloudwatch(message):
 
 
 def calculate_secret_hash(client_id, client_secret, username):
+    """
+    Calcula o SECRET_HASH necessário para as operações do Cognito.
+    Usa o email (que agora é o username) diretamente.
+    """
     message = username + client_id
-    dig = hmac.new(str(client_secret).encode('utf-8'),
-                   msg=str(message).encode('utf-8'),
+    dig = hmac.new(client_secret.encode('utf-8'),
+                   msg=message.encode('utf-8'),
                    digestmod=hashlib.sha256).digest()
     return base64.b64encode(dig).decode()
 
@@ -96,16 +98,20 @@ class CognitoService:
         self.client_secret = client_secret
 
     def register_user(self, email, password):
+        """
+        Registra o usuário usando o email diretamente como username.
+        """
+        secret_hash = calculate_secret_hash(
+            self.client_id, self.client_secret, email)
         try:
             response = self.client.sign_up(
                 ClientId=self.client_id,
-                Username=email,
+                SecretHash=secret_hash,
+                Username=email,  # Usa o email como username
                 Password=password,
                 UserAttributes=[
-                    {
-                        'Name': 'email',
-                        'Value': email
-                    },
+                    {'Name': 'email', 'Value': email},
+                    # Adicione outros atributos se necessário.
                 ]
             )
             log_to_cloudwatch(f"User registered: {email}")
@@ -115,6 +121,9 @@ class CognitoService:
             return {'error': str(e)}
 
     def login_user(self, email, password):
+        """
+        Realiza o login usando o email como username.
+        """
         try:
             secret_hash = calculate_secret_hash(
                 self.client_id, self.client_secret, email)
@@ -143,6 +152,9 @@ class CognitoService:
             return {'error': str(e)}
 
     def complete_new_password(self, email, new_password, session):
+        """
+        Completa o fluxo de nova senha usando o email como username.
+        """
         try:
             secret_hash = calculate_secret_hash(
                 self.client_id, self.client_secret, email)
@@ -154,7 +166,8 @@ class CognitoService:
                     'USERNAME': email,
                     'NEW_PASSWORD': new_password,
                     'SECRET_HASH': secret_hash,
-                    'userAttributes.nickname': 'nickname'  # Adicione o atributo 'nickname' aqui
+                    # Remova ou ajuste este atributo conforme a configuração do seu User Pool
+                    'userAttributes.nickname': 'nickname'
                 }
             )
             logging.debug(f"Response from Cognito: {response}")
@@ -169,13 +182,36 @@ class CognitoService:
             log_to_cloudwatch(f"Password update error for {email}: {str(e)}")
             return {'error': str(e)}
 
-    def initiate_password_reset(self, email):
+    def confirm_user(self, email, confirmation_code):
+        """
+        Confirma o cadastro do usuário usando o código de confirmação.
+        """
         try:
+            secret_hash = calculate_secret_hash(
+                self.client_id, self.client_secret, email)
+            response = self.client.confirm_sign_up(
+                ClientId=self.client_id,
+                SecretHash=secret_hash,
+                Username=email,
+                ConfirmationCode=confirmation_code
+            )
+            log_to_cloudwatch(f"User confirmed: {email}")
+            return response
+        except ClientError as e:
+            log_to_cloudwatch(f"Confirmation error for {email}: {str(e)}")
+            return {'error': str(e)}
+
+    def initiate_password_reset(self, email):
+        """
+        Inicia o fluxo de reset de senha.
+        """
+        try:
+            secret_hash = calculate_secret_hash(
+                self.client_id, self.client_secret, email)
             response = self.client.forgot_password(
                 ClientId=self.client_id,
                 Username=email,
-                SecretHash=calculate_secret_hash(
-                    self.client_id, self.client_secret, email)
+                SecretHash=secret_hash
             )
             logging.debug(f"Password reset initiated for {email}: {response}")
             log_to_cloudwatch(
@@ -188,14 +224,18 @@ class CognitoService:
             return {'error': str(e)}
 
     def confirm_password_reset(self, email, confirmation_code, new_password):
+        """
+        Confirma o fluxo de reset de senha.
+        """
         try:
+            secret_hash = calculate_secret_hash(
+                self.client_id, self.client_secret, email)
             response = self.client.confirm_forgot_password(
                 ClientId=self.client_id,
                 Username=email,
                 ConfirmationCode=confirmation_code,
                 Password=new_password,
-                SecretHash=calculate_secret_hash(
-                    self.client_id, self.client_secret, email)
+                SecretHash=secret_hash
             )
             logging.debug(f"Password reset confirmed for {email}: {response}")
             log_to_cloudwatch(
