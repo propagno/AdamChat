@@ -1,5 +1,5 @@
 // Exemplo básico de serviço para conectar com o backend
-const API_URL = "https://api.adamchat.com"; // ajuste para a URL do seu backend
+const API_URL = "https://api.https://d273teevyftonl.cloudfront.net"; // ajuste para a URL do seu backend
 
 export async function login(email, password) {
   const response = await fetch(`${API_URL}/auth/login`, {

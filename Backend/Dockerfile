@@ -8,6 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Instalar dependências
+RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Expor a porta do Flask
