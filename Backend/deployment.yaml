@@ -1,7 +1,16 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: adamchat-service-account
+  annotations:
+    eks.amazonaws.com/role-arn: arn:aws:iam::762233763137:role/<NOME_DA_ROLE_IAM>
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: adamchat-backend
+  labels:
+    app: adamchat
 spec:
   replicas: 2
   selector:
@@ -12,8 +21,20 @@ spec:
       labels:
         app: adamchat
     spec:
+      serviceAccountName: adamchat-service-account
       containers:
         - name: adamchat-backend
           image: 762233763137.dkr.ecr.us-east-2.amazonaws.com/adamchat-backend:latest
           ports:
             - containerPort: 5000
+          env:
+            - name: FLASK_ENV
+              value: "production"
+            - name: COGNITO_REGION
+              value: "us-east-2"
+            - name: COGNITO_USER_POOL_ID
+              value: "<COGNITO_USER_POOL_ID>"
+            - name: COGNITO_CLIENT_ID
+              value: "<COGNITO_CLIENT_ID>"
+            - name: AWS_DEFAULT_REGION
+              value: "us-east-2"
