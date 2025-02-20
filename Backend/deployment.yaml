@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adamchat-backend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: adamchat
+  template:
+    metadata:
+      labels:
+        app: adamchat
+    spec:
+      containers:
+        - name: adamchat-backend
+          image: 762233763137.dkr.ecr.us-east-2.amazonaws.com/adamchat-backend:latest
+          ports:
+            - containerPort: 5000
