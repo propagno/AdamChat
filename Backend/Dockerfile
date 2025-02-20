@@ -7,13 +7,14 @@ ENV PYTHONUNBUFFERED=1
 # Definir diretório de trabalho
 WORKDIR /app
 
-# Instalar dependências do sistema necessárias
-RUN apt-get update && apt-get install -y \
+# Instalar dependências do sistema necessárias, incluindo ffmpeg para pydub
+RUN apt-get update && apt-get install -y --no-install-recommends \
     gcc \
     libpq-dev \
     libffi-dev \
     curl \
-    && rm -rf /var/lib/apt/lists/*
+    ffmpeg \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Copiar os arquivos do projeto para o diretório de trabalho
 COPY . .
