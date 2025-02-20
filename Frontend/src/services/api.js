@@ -1,19 +1,22 @@
-const API_URL = "https://api.adamchat.com";
+// Exemplo básico de serviço para conectar com o backend
+const API_URL = "https://api.adamchat.com"; // ajuste para a URL do seu backend
 
-export async function login(username, password) {
-    const response = await fetch(`${API_URL}/api/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }),
-    });
-    return response.json();
+export async function login(email, password) {
+  const response = await fetch(`${API_URL}/auth/login`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  return response.json();
 }
 
-export async function sendMessageToChat(message) {
-    const response = await fetch(`${API_URL}/api/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
-    });
-    return response.json();
+export async function register(email, password) {
+  const response = await fetch(`${API_URL}/auth/register`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password })
+  });
+  return response.json();
 }
+
+// Adicione outras funções conforme necessário
