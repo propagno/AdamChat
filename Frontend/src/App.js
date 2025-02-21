@@ -10,18 +10,21 @@ const App = () => {
         const code = getCodeFromUrl();
         if (code) {
             exchangeCodeForToken(code).then(() => {
-                // Limpa a URL removendo o código
                 window.history.replaceState({}, document.title, "/");
-                // Redireciona para a rota principal
                 navigate('/main');
             });
+        } else {
+            // Se não houver token, redireciona para o Cognito
+            const token = localStorage.getItem('id_token');
+            if (!token) {
+                login();
+            }
         }
     }, [navigate]);
 
     return (
         <div>
             <h1>AdamChat</h1>
-            <button onClick={login}>Login</button>
         </div>
     );
 };
