@@ -9,6 +9,8 @@
     "python.testing.pytestEnabled": false,
     "python.testing.unittestEnabled": true,
     "python.analysis.extraPaths": [
-        "./Backend/Lib/site-packages"
+        "./Backend/Lib/site-packages",
+        "./Lib/site-packages",
+        "./Lib/site-packages"
     ]
 }
