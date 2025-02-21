@@ -19,6 +19,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Copiar os arquivos do projeto para o diretório de trabalho
 COPY . .
 
+# Copiar o arquivo JSON para o container
+# O caminho do arquivo no EC2 foi fornecido, então vamos copiá-lo para dentro do container
+COPY secure-bonus-450617-i7-906cd0940dc5.json /app/
+
+# Definir a variável de ambiente com o novo caminho
+ENV GOOGLE_CREDENTIALS_JSON=/app/secure-bonus-450617-i7-906cd0940dc5.json
+ENV REACT_APP_API_URL=https://ad919e734038e459a9c7a8cdc8051ecf-1751982795.us-east-2.elb.amazonaws.com
+
 # Atualizar o pip e instalar as dependências
 RUN pip install --upgrade pip
 RUN pip install --no-cache-dir -r requirements.txt
