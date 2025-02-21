@@ -7,13 +7,15 @@
     <meta name="theme-color" content="#000000" />
     <meta name="description" content="AdamChat - Sua aplicação de chat em tempo real" />
     <title>AdamChat</title>
-    <!-- O build do React injetará o caminho correto para o CSS, com hash, no arquivo final -->
-    <link rel="stylesheet" href="/static/css/main.[hash].css" />
+    <!-- O %PUBLIC_URL% será substituído automaticamente pelo caminho da pasta pública no build -->
+    <link rel="stylesheet" href="%PUBLIC_URL%/static/css/main.css" />
   </head>
   <body>
-    <noscript>Você precisa habilitar o JavaScript para executar esta aplicação.</noscript>
+    <noscript>
+      Você precisa habilitar o JavaScript para executar esta aplicação.
+    </noscript>
     <div id="root"></div>
-    <!-- O build do React injetará o caminho correto para o JavaScript, com hash -->
-    <script src="/static/js/main.169871cd.js"></script>
+    <!-- O script abaixo será automaticamente injetado com o hash correto no processo de build -->
+    <script src="%PUBLIC_URL%/static/js/main.js"></script>
   </body>
 </html>
