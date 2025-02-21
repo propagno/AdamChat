@@ -14,10 +14,9 @@ const App = () => {
                 navigate('/main');
             });
         } else {
-            // Se não houver token, redireciona para o Cognito
             const token = localStorage.getItem('id_token');
             if (!token) {
-                login();
+                login(); // Redireciona para o Cognito Hosted UI
             }
         }
     }, [navigate]);
