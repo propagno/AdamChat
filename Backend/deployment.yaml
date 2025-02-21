@@ -33,15 +33,15 @@ spec:
             - name: COGNITO_REGION
               value: "us-east-2"
             - name: COGNITO_USER_POOL_ID
-              value: "<COGNITO_USER_POOL_ID>"
+              value: "us-east-2_M4hvqQ1nu"  
             - name: COGNITO_CLIENT_ID
-              value: "<COGNITO_CLIENT_ID>"
+              value: "2iatr116il9ptd81nc8fq3l11h"  
             - name: AWS_DEFAULT_REGION
               value: "us-east-2"
             - name: GOOGLE_CREDENTIALS_JSON
               value: "/app/secure-bonus-450617-i7-906cd0940dc5.json"
             - name: REACT_APP_API_URL
-              value: "https://api.seu-dominio-cloudfront.net"
+              value: "https://api.d273teevyftonl.cloudfront.net"  
           volumeMounts:
             - name: google-credentials
               mountPath: /app/secure-bonus-450617-i7-906cd0940dc5.json
@@ -50,4 +50,3 @@ spec:
         - name: google-credentials
           hostPath:
             path: /home/ec2-user/AdamChat/Backend/secure-bonus-450617-i7-906cd0940dc5.json
-
