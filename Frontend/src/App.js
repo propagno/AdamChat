@@ -4,37 +4,32 @@ import { useNavigate } from 'react-router-dom';
 import { getCodeFromUrl, exchangeCodeForToken, login } from './services/auth';
 
 const App = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    useEffect(() => {
-      console.log("App carregado");
-      const code = getCodeFromUrl();
-      console.log("Código na URL:", code);
-      if (code) {
-          console.log("Trocando código por token...");
-          exchangeCodeForToken(code).then(() => {
-              window.history.replaceState({}, document.title, "/");
-              navigate('/main');
-          });
+  useEffect(() => {
+    const code = getCodeFromUrl();
+    if (code) {
+      exchangeCodeForToken(code).then(() => {
+        window.history.replaceState({}, document.title, "/");
+        // Redireciona para a rota do dashboard no backend
+        window.location.href = "/dashboard";
+      });
+    } else {
+      const token = localStorage.getItem('id_token');
+      if (!token) {
+        login(); // Redireciona para o Cognito Hosted UI
       } else {
-          const token = localStorage.getItem('id_token');
-          console.log("Token no localStorage:", token);
-          if (!token) {
-              console.log("Nenhum token encontrado, redirecionando para o Cognito...");
-              login(); // Deve redirecionar para o Cognito
-          } else {
-              console.log("Token encontrado, redirecionando para /main");
-              navigate('/main');
-          }
+        // Se o token existir, redireciona para o dashboard
+        window.location.href = "/dashboard";
       }
+    }
   }, [navigate]);
-  
 
-    return (
-        <div>
-            <h1>AdamChat</h1>
-        </div>
-    );
+  return (
+    <div>
+      <h1>AdamChat</h1>
+    </div>
+  );
 };
 
 export default App;
