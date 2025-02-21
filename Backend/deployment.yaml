@@ -1,10 +1,3 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: adamchat-service-account
-  annotations:
-    eks.amazonaws.com/role-arn: arn:aws:iam::762233763137:role/eksctl-adamchat-cluster-cluster-ServiceRole-tRikVBzUIrtZ
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -33,20 +26,20 @@ spec:
             - name: COGNITO_REGION
               value: "us-east-2"
             - name: COGNITO_USER_POOL_ID
-              value: "us-east-2_M4hvqQ1nu"  
+              value: "us-east-2_M4hvqQ1nu"
             - name: COGNITO_CLIENT_ID
-              value: "2iatr116il9ptd81nc8fq3l11h"  
+              value: "2iatr116il9ptd81nc8fq3l11h"
             - name: AWS_DEFAULT_REGION
               value: "us-east-2"
             - name: GOOGLE_CREDENTIALS_JSON
               value: "/app/secure-bonus-450617-i7-906cd0940dc5.json"
             - name: REACT_APP_API_URL
-              value: "https://api.d273teevyftonl.cloudfront.net"  
+              value: "https://api.d273teevyftonl.cloudfront.net"
           volumeMounts:
             - name: google-credentials
               mountPath: /app/secure-bonus-450617-i7-906cd0940dc5.json
               subPath: secure-bonus-450617-i7-906cd0940dc5.json
       volumes:
         - name: google-credentials
-          hostPath:
-            path: /home/ec2-user/AdamChat/Backend/secure-bonus-450617-i7-906cd0940dc5.json
+          secret:
+            secretName: google-credentials
